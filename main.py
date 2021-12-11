@@ -1,14 +1,20 @@
 import cv2
-#import numpy as np
 
+# initializing modifiable values
+CAMERA_INPUT = 0
+BLINK_THRESHOLD = 6
 
-capture = cv2.VideoCapture(0)
+# Initializing working variables
 face_cascade = cv2.CascadeClassifier(
     cv2.data.haarcascades + "haarcascade_frontalface_alt2.xml")
 eye_cascade = cv2.CascadeClassifier(
     cv2.data.haarcascades + "haarcascade_eye_tree_eyeglasses.xml")
+frame_count = 0
+blink_count = 0
+last_blink_status = True
 
-testing = []
+# Initalizing the video camera output
+capture = cv2.VideoCapture(CAMERA_INPUT)
 
 while True:
     ret, frame = capture.read()
@@ -35,13 +41,29 @@ while True:
         for (ex, ey, ew, eh) in eyes:
             cv2.rectangle(roi_color, (ex, ey), (ex+ew, ey+eh), (0, 255, 0), 2)
 
+    # Blink Detection algorithm
+    if len(faces) > 0:
+        if len(eyes) == 0:
+            frame_count += 1
+        else:
+            frame_count = 0
+            last_blink_status = True
+
+        if frame_count > BLINK_THRESHOLD and last_blink_status:
+            last_blink_status = False
+            blink_count += 1
+            frame_count = 0
+
     # Rectangle for showing outputs
     cv2.rectangle(frame, (10, height - 60),
                   (width-10, height-10), (255, 0, 0), -1)
     font = cv2.FONT_HERSHEY_SIMPLEX
 
-    # What is to be displayed
+    # Displayed information on the screen
     content = 'FPS:' + str(capture.get(cv2.CAP_PROP_FPS))
+    content += " || Eye Closed Time: " + \
+        str("%.3f" % (frame_count * (1.0/30))) + " ms"
+    content += " || Number of Blinks: " + str(blink_count)
 
     cv2.putText(frame, content, (50, height-20), font, 0.5,
                 (0, 0, 0), 1, lineType=cv2.LINE_AA)
