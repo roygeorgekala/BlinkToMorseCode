@@ -3,12 +3,15 @@ import cv2
 # initializing modifiable values
 CAMERA_INPUT = 0
 BLINK_THRESHOLD = 6
+FACE_HAAR_CASCADE = "haarcascade_frontalface_alt2.xml"
+EYE_HAAR_CASCADE = "haarcascade_eye_tree_eyeglasses.xml"
+
 
 # Initializing working variables
 face_cascade = cv2.CascadeClassifier(
-    cv2.data.haarcascades + "haarcascade_frontalface_alt2.xml")
+    cv2.data.haarcascades + FACE_HAAR_CASCADE)
 eye_cascade = cv2.CascadeClassifier(
-    cv2.data.haarcascades + "haarcascade_eye_tree_eyeglasses.xml")
+    cv2.data.haarcascades + EYE_HAAR_CASCADE)
 frame_count = 0
 blink_count = 0
 last_blink_status = True
@@ -49,7 +52,7 @@ while True:
             frame_count = 0
             last_blink_status = True
 
-        if frame_count > BLINK_THRESHOLD and last_blink_status:
+        if last_blink_status and frame_count > BLINK_THRESHOLD:
             last_blink_status = False
             blink_count += 1
             frame_count = 0
@@ -67,6 +70,7 @@ while True:
 
     cv2.putText(frame, content, (50, height-20), font, 0.5,
                 (0, 0, 0), 1, lineType=cv2.LINE_AA)
+
     # Frame resizing to make the output look bigger
     frame = cv2.resize(frame, (0, 0), fx=1.5, fy=1.5)
     cv2.imshow("Camera output", frame)
