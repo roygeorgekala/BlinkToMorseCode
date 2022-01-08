@@ -1,4 +1,5 @@
 import cv2
+import interpreter
 
 # initializing modifiable values
 CAMERA_INPUT = 0  # Select which camera to use, 0 usually works for inbuilt webcams
@@ -26,7 +27,7 @@ short_blink_status = True
 long_blink_status = True
 open_status = True
 content = ""
-
+read = ""
 # Initalizing the video camera output
 capture = cv2.VideoCapture(CAMERA_INPUT)
 
@@ -71,16 +72,18 @@ while True:
             open_eye_count += 1
 
             if open_eye_count > IN_BETWEEN_THRESHOLD and open_status:
-                content = ""
+
+                content += interpreter.interpret(read.strip())
+                read = ""
                 open_status = False
 
         if short_blink_status and frame_count > SHORT_BLINK_THRESHOLD:
-            content += "."
+            read += ". "
             short_blink_status = False
 
         elif long_blink_status and frame_count > LONG_BLINK_THRESHOLD:
             long_blink_status = False
-            content = content[:-1]+"-"
+            read = read[:-2]+"_ "
             frame_count = 0
 
     # Rectangle for showing outputs
@@ -95,7 +98,7 @@ while True:
         content += " || Short Blinks: " + str(short_blink_count)
         content += " || Open eye frames: " + str(open_eye_count)
     """
-    cv2.putText(frame, content, (50, height-20), font, 0.5,
+    cv2.putText(frame, content+read, (50, height-20), font, 0.5,
                 (0, 0, 0), 1, lineType=cv2.LINE_AA)
 
     # Frame resizing to make the output look bigger
