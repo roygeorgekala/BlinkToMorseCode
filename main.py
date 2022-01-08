@@ -6,7 +6,10 @@ CAMERA_INPUT = 0  # Select which camera to use, 0 usually works for inbuilt webc
 # Number of frames at 30fps where closed eyes indicate short blink aka a dot
 SHORT_BLINK_THRESHOLD = 3
 # Number of frames at 30fps where closed eyes indicate long blink aka a dash
-LONG_BLINK_THRESHOLD = 12
+LONG_BLINK_THRESHOLD = 8
+
+# Duration of a break
+IN_BETWEEN_THRESHOLD = 30
 
 FACE_HAAR_CASCADE = "haarcascade_frontalface_alt2.xml"
 EYE_HAAR_CASCADE = "haarcascade_eye_tree_eyeglasses.xml"
@@ -18,11 +21,11 @@ face_cascade = cv2.CascadeClassifier(
 eye_cascade = cv2.CascadeClassifier(
     cv2.data.haarcascades + EYE_HAAR_CASCADE)
 frame_count = 0
-long_blink_count = 0
-short_blink_count = 0
+open_eye_count = 0
 short_blink_status = True
 long_blink_status = True
-
+open_status = True
+content = ""
 
 # Initalizing the video camera output
 capture = cv2.VideoCapture(CAMERA_INPUT)
@@ -54,21 +57,30 @@ while True:
 
     # Blink Detection algorithm
     if len(faces) > 0:
+
         if len(eyes) == 0:
+            # Increment number of frames where eyes have been closed
             frame_count += 1
+            open_eye_count = 0
+            open_status = True
         else:
+            # Reset number of frames and blink status' when eyes are opened
             frame_count = 0
             short_blink_status = True
             long_blink_status = True
+            open_eye_count += 1
 
-        if frame_count > SHORT_BLINK_THRESHOLD and short_blink_status:
-            short_blink_count += 1
+            if open_eye_count > IN_BETWEEN_THRESHOLD and open_status:
+                content = ""
+                open_status = False
+
+        if short_blink_status and frame_count > SHORT_BLINK_THRESHOLD:
+            content += "."
             short_blink_status = False
 
         elif long_blink_status and frame_count > LONG_BLINK_THRESHOLD:
             long_blink_status = False
-            short_blink_count -= 1
-            long_blink_count += 1
+            content = content[:-1]+"-"
             frame_count = 0
 
     # Rectangle for showing outputs
@@ -76,14 +88,14 @@ while True:
                   (width-10, height-10), (255, 0, 0), -1)
     font = cv2.FONT_HERSHEY_SIMPLEX
 
-    # Displayed information on the screen
-    content = 'FPS:' + str(capture.get(cv2.CAP_PROP_FPS))
-    content += " || Eye Closed Time: " + \
-        str("%.3f" % (frame_count * (1.0/30))) + " ms"
-    content += " || Long Blinks: " + str(long_blink_count)
-    content += " || Short Blinks: " + str(short_blink_count)
-
-    cv2.putText(frame, content, (50, height-20), font, 0.4,
+    """# Displayed information on the screen
+        content = 'FPS:' + str(capture.get(cv2.CAP_PROP_FPS))
+        content += " || Eye Closed Time: " + str("%.3f" % (frame_count * (1.0/30))) + " ms"
+        content += " || Long Blinks: " + str(long_blink_count)
+        content += " || Short Blinks: " + str(short_blink_count)
+        content += " || Open eye frames: " + str(open_eye_count)
+    """
+    cv2.putText(frame, content, (50, height-20), font, 0.5,
                 (0, 0, 0), 1, lineType=cv2.LINE_AA)
 
     # Frame resizing to make the output look bigger
