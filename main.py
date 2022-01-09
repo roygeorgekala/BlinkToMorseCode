@@ -2,7 +2,7 @@ import cv2
 import interpreter
 
 # initializing modifiable values
-CAMERA_INPUT = 0  # Select which camera to use, 0 usually works for inbuilt webcams
+CAMERA_INPUT = 0  # Select which camera to use, 0 usually works for in-built webcams
 
 # Number of frames at 30fps where closed eyes indicate short blink aka a dot
 SHORT_BLINK_THRESHOLD = 3
@@ -12,6 +12,7 @@ LONG_BLINK_THRESHOLD = 8
 # Duration of a break
 IN_BETWEEN_THRESHOLD = 30
 
+# The cascades are listed on https://github.com/opencv/opencv/tree/master/data/haarcascades
 FACE_HAAR_CASCADE = "haarcascade_frontalface_alt2.xml"
 EYE_HAAR_CASCADE = "haarcascade_eye_tree_eyeglasses.xml"
 
@@ -91,7 +92,7 @@ def main():
 
         # Rectangle for showing outputs
         cv2.rectangle(frame, (10, height - 60),
-                      (width-10, height-10), (255, 0, 0), -1)
+                      (width-10, height-10), (255, 255, 255), -1)
         font = cv2.FONT_HERSHEY_SIMPLEX
 
         cv2.putText(frame, content+read, (50, height-20), font, 0.5,
