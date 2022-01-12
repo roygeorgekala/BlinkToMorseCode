@@ -1,5 +1,6 @@
 import cv2
 import interpreter
+import numpy as np
 
 # initializing modifiable values
 CAMERA_INPUT = 0  # Select which camera to use, 0 usually works for in-built webcams
@@ -31,8 +32,21 @@ def main():
     open_status = True
     content = ""
     read = ""
+
     # Initalizing the video camera output
     capture = cv2.VideoCapture(CAMERA_INPUT)
+
+    # First Frame captured to retrieve height and width
+    ret, frame = capture.read()
+
+    # Height and width of video feed
+    width = int(capture.get(3))
+    height = int(capture.get(4))
+
+    infoDisplayArea = [[[128, 128, 128] for j in range(0, int(width/4))]
+                       for k in range(0, height)]
+
+    infoDisplayArea = np.array(infoDisplayArea, dtype=np.uint8)
 
     while True:
         ret, frame = capture.read()
@@ -81,6 +95,8 @@ def main():
                     read = ""
                     open_status = False
 
+                    print(content.split()[-1])
+
             if short_blink_status and frame_count > SHORT_BLINK_THRESHOLD:
                 read += ". "
                 short_blink_status = False
@@ -99,6 +115,7 @@ def main():
                     (0, 0, 0), 1, lineType=cv2.LINE_AA)
 
         # Frame resizing to make the output look bigger
+        frame = np.append(frame, infoDisplayArea, axis=1)
         frame = cv2.resize(frame, (0, 0), fx=1.5, fy=1.5)
         cv2.imshow("Camera output", frame)
 
