@@ -80,7 +80,6 @@ def main():
                     content += interpreter.interpret(read.strip())
                     read = ""
                     open_status = False
-
             if short_blink_status and frame_count > SHORT_BLINK_THRESHOLD:
                 read += ". "
                 short_blink_status = False
