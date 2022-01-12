@@ -123,8 +123,6 @@ def main():
                     read = ""
                     open_status = False
 
-                    # print(CONTENT.split()[-1])
-
             if short_blink_status and frame_count > SHORT_BLINK_THRESHOLD:
                 read += ". "
                 short_blink_status = False
