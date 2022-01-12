@@ -54,9 +54,31 @@ translator = {
 
 }
 
+phrases = [
+    "Yes",
+    "No",
+    "Thirsty",
+    "Medicine",
+    "Doctor/Nurse",
+    "Help",
+    "Washroom",
+    "Hungry",
+    "Good Morning/Evening",
+    "What’s your name?",
+    "End of message",
+]
+
 
 def interpret(content):
     try:
         return translator[content]
     except:
         return ''
+
+
+def content_return(content):
+    out = []
+    for phrase in phrases:
+        if phrase.startswith(content):
+            out += [phrase]
+    return out
