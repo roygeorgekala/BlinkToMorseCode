@@ -1,4 +1,5 @@
 import cv2
+from cv2 import LINE_AA
 import interpreter
 import numpy as np
 import threading as th
@@ -49,6 +50,7 @@ def main():
     short_blink_status = True
     long_blink_status = True
     open_status = True
+    autocomplete_status = False
     read = ""
     global CONTENT
     content_thread = th.Thread(target=get_content)
@@ -78,7 +80,7 @@ def main():
     infoDisplayArea = np.array(infoDisplayArea, dtype=np.uint8)
 
     while True:
-        ret, frame = capture.read()
+        _, frame = capture.read()
 
         # Flipping image to ensure mirroring
         frame = cv2.flip(frame, 1)
@@ -119,9 +121,23 @@ def main():
 
                 if open_eye_count > IN_BETWEEN_THRESHOLD and open_status:
 
-                    CONTENT += interpreter.interpret(read.strip())
+                    current_out = interpreter.interpret(read.strip())
+
+                    if autocomplete_status:
+                        try:
+                            CONTENT = SUGGESTIONS[int(current_out)-1]
+                        except:
+                            pass
+                        autocomplete_status = False
+                    elif current_out == "BACKSPACE":
+                        CONTENT = CONTENT[:-1]
+                    elif current_out == "AUTOCOMPLETE":
+                        autocomplete_status = True
+                    else:
+                        CONTENT += current_out
                     read = ""
                     open_status = False
+
             if short_blink_status and frame_count > SHORT_BLINK_THRESHOLD:
                 read += ". "
                 short_blink_status = False
@@ -139,6 +155,17 @@ def main():
         cv2.putText(frame, CONTENT+read, (50, height-20), font, 0.5,
                     (0, 0, 0), 1, lineType=cv2.LINE_AA)
 
+        # Rectangle for autocomplete status
+        if autocomplete_status:
+            auto_color = (0, 255, 0)
+            auto_text = "ON"
+        else:
+            auto_color = (0, 0, 255)
+            auto_text = "OFF"
+
+        cv2.rectangle(frame, (0, 10), (150, 30), auto_color, -1)
+        cv2.putText(frame, "AUTOCOMPLETE: " + auto_text, (10, 23),
+                    font, 0.4, (0, 0, 0), 1, lineType=LINE_AA)
         # Frame resizing to make the output look bigger
         frame = np.append(frame, infoDisplayArea, axis=1)
         frame = cv2.resize(frame, (0, 0), fx=1.5, fy=1.5)

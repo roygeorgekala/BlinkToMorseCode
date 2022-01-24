@@ -51,6 +51,8 @@ translator = {
     '_ . . _': 'x',
     '. _ _ . _ .': '@',
     '. . _ _': ' ',
+    '. . _ .': 'BACKSPACE',
+    '. _ . _': 'AUTOCOMPLETE',
 
 }
 
@@ -84,7 +86,7 @@ phrases = [
     "Stomach",
     "Good boy/good girl(pet)",
     "fan/ac/lights",
-  
+
 ]
 
 
