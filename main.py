@@ -29,7 +29,10 @@ def get_content():
     global SUGGESTIONS
     while True:
         time.sleep(0.25)
-        ret = interpreter.content_return(CONTENT)
+        if len(CONTENT) > 1:
+            ret = interpreter.content_return(CONTENT.split()[-1])
+        else:
+            ret = interpreter.content_return(CONTENT)
         if len(ret) > 8:
             SUGGESTIONS = ret[:8]
         else:
