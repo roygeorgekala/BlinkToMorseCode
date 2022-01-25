@@ -1,3 +1,4 @@
+from multiprocessing.dummy import current_process
 import cv2
 from cv2 import LINE_AA
 import interpreter
@@ -30,6 +31,7 @@ def get_content():
     while True:
         time.sleep(0.25)
         if len(CONTENT) > 1:
+            # Checking autocompletion with the final word
             ret = interpreter.content_return(CONTENT.split()[-1])
         else:
             ret = interpreter.content_return(CONTENT)
@@ -128,10 +130,12 @@ def main():
 
                     if autocomplete_status:
                         try:
-                            CONTENT = SUGGESTIONS[int(current_out)-1]
+                            CONTENT += SUGGESTIONS[int(current_out)-1].upper()
                         except:
                             pass
                         autocomplete_status = False
+                    elif current_out == "CLEARALL":
+                        CONTENT = ""
                     elif current_out == "BACKSPACE":
                         CONTENT = CONTENT[:-1]
                     elif current_out == "AUTOCOMPLETE":

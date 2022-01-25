@@ -53,6 +53,7 @@ translator = {
     '. . _ _': ' ',
     '. . _ .': 'BACKSPACE',
     '. _ . _': 'AUTOCOMPLETE',
+    '. _ . _ . _ .': 'CLEARALL',
 
 }
 
