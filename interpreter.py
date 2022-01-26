@@ -100,6 +100,6 @@ def interpret(content):
 def content_return(content):
     out = []
     for phrase in phrases:
-        if phrase.startswith(content):
+        if phrase.lower().startswith(content):
             out += [phrase]
     return out

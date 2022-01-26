@@ -1,4 +1,5 @@
 from multiprocessing.dummy import current_process
+import traceback
 import cv2
 from cv2 import LINE_AA
 import interpreter
@@ -32,9 +33,9 @@ def get_content():
         time.sleep(0.25)
         if len(CONTENT) > 1:
             # Checking autocompletion with the final word
-            ret = interpreter.content_return(CONTENT.split()[-1])
+            ret = interpreter.content_return(CONTENT.split()[-1].lower())
         else:
-            ret = interpreter.content_return(CONTENT)
+            ret = interpreter.content_return(CONTENT.lower())
         if len(ret) > 8:
             SUGGESTIONS = ret[:8]
         else:
@@ -58,6 +59,7 @@ def main():
     autocomplete_status = False
     read = ""
     global CONTENT
+    global SUGGESTIONS
     content_thread = th.Thread(target=get_content)
     content_thread.daemon = True
     content_thread.start()
@@ -130,9 +132,15 @@ def main():
 
                     if autocomplete_status:
                         try:
-                            CONTENT += SUGGESTIONS[int(current_out)-1].upper()
+                            #CONTENT += SUGGESTIONS[int(current_out)-1].upper()
+                            sugg = SUGGESTIONS[int(current_out)-1].upper()
+                            current_suggestion = CONTENT.split()
+                            current_suggestion[-1] = sugg
+                            CONTENT = " ".join(current_suggestion)
+
                         except:
-                            pass
+                            print("error")
+                            traceback.print_exc()
                         autocomplete_status = False
                     elif current_out == "CLEARALL":
                         CONTENT = ""
@@ -198,7 +206,7 @@ def main():
         cv2.imshow("Camera output", frame)
 
         # Wait until Q is pressed to exit the application
-        if cv2.waitKey(1) == ord('q'):
+        if cv2.waitKey(1) == ord('q') or cv2.waitKey(1) == ord('Q'):
             break
 
     capture.release()
