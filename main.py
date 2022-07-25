@@ -58,7 +58,16 @@ def get_content():
 def text_to_speech(current_content):
     speech = gTTS(text = current_content)
     speech.save('current_content.mp3')
-    os.system('afplay current_content.mp3')
+    try:
+        os.system('afplay current_content.mp3')
+    except:
+        pass
+    try:
+        os.system('start music.mp3')
+    except:
+        pass
+
+        
 
 def main():
 
