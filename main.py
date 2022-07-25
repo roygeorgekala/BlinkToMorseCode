@@ -1,4 +1,13 @@
-from multiprocessing.dummy import current_process
+"""
+Morse code Interpretation from Blinking using OpenCV,Python and Android -
+
+        Final Year Project of
+            MS.Vishnupriya(1BY18CS086)
+            Roy George(1BY18CS126)
+            S. Geetanjali(1BY18CS129)
+            Sanjana Gowdanar(1BY18CS138)
+"""
+
 import traceback
 import cv2
 from cv2 import LINE_AA
@@ -6,17 +15,20 @@ import interpreter
 import numpy as np
 import threading as th
 import time
+from gtts import gTTS
+import os
 
 # initializing modifiable values
 CAMERA_INPUT = 0  # Select which camera to use, 0 usually works for in-built webcams
 
 # Number of frames at 30fps where closed eyes indicate short blink aka a dot
 SHORT_BLINK_THRESHOLD = 3
+
 # Number of frames at 30fps where closed eyes indicate long blink aka a dash
 LONG_BLINK_THRESHOLD = 8
 
 # Duration of a break
-IN_BETWEEN_THRESHOLD = 30
+IN_BETWEEN_THRESHOLD = 23
 
 # The cascades are listed on https://github.com/opencv/opencv/tree/master/data/haarcascades
 FACE_HAAR_CASCADE = "haarcascade_frontalface_alt2.xml"
@@ -30,7 +42,7 @@ SUGGESTIONS = [""]*8
 def get_content():
     global SUGGESTIONS
     while True:
-        time.sleep(0.25)
+        time.sleep(0.50)
         if len(CONTENT) > 1:
             # Checking autocompletion with the final word
             ret = interpreter.content_return(CONTENT.split()[-1].lower())
@@ -43,6 +55,10 @@ def get_content():
             SUGGESTIONS[len(ret):] = [""]*(8-len(ret))
         # print(SUGGESTIONS)
 
+def text_to_speech(current_content):
+    speech = gTTS(text = current_content)
+    speech.save('current_content.mp3')
+    os.system('afplay current_content.mp3')
 
 def main():
 
@@ -60,9 +76,12 @@ def main():
     read = ""
     global CONTENT
     global SUGGESTIONS
+
+    # Intializing of suggestion searching thread
     content_thread = th.Thread(target=get_content)
     content_thread.daemon = True
     content_thread.start()
+
     # Initalizing the video camera output
     capture = cv2.VideoCapture(CAMERA_INPUT)
 
@@ -148,6 +167,10 @@ def main():
                         CONTENT = CONTENT[:-1]
                     elif current_out == "AUTOCOMPLETE":
                         autocomplete_status = True
+                    elif current_out == "TTS":
+                        text_to_speech(CONTENT)
+                    elif current_out == 'ALARM':
+                        os.system('afplay alarm.wav')
                     else:
                         CONTENT += current_out
                     read = ""
@@ -181,8 +204,8 @@ def main():
         cv2.rectangle(frame, (0, 10), (150, 30), auto_color, -1)
         cv2.putText(frame, "AUTOCOMPLETE: " + auto_text, (10, 23),
                     font, 0.4, (0, 0, 0), 1, lineType=LINE_AA)
-        # Frame resizing to make the output look bigger
         frame = np.append(frame, infoDisplayArea, axis=1)
+        # Frame resizing to make the output look bigger
         frame = cv2.resize(frame, (0, 0), fx=1.5, fy=1.5)
 
         adder = frame.shape[0]//8

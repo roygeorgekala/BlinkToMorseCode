@@ -54,6 +54,9 @@ translator = {
     '. . _ .': 'BACKSPACE',
     '. _ . _': 'AUTOCOMPLETE',
     '. _ . _ . _ .': 'CLEARALL',
+    '. . _ _ . . _':'TTS',
+    '. . _ . .':'ALARM',
+    '_ _ _ _ . _':'OKAY GOOGLE, TURN OFF THE LIGHT'
 
 }
 
@@ -86,6 +89,7 @@ phrases = [
     "Chest",
     "Stomach",
     "fan/ac/lights",
+    "Hello",
 
 ]
 
